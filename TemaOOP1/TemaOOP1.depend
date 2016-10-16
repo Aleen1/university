@@ -1,0 +1,24 @@
+# depslib dependency file v1.0
+1476120892 source:c:\users\adi\desktop\temaoop1\cmmdc.c
+	"cmmdc.h"
+
+1476121703 c:\users\adi\desktop\temaoop1\cmmdc.h
+
+1476121226 source:c:\users\adi\desktop\temaoop1\main.c
+	<stdio.h>
+	<stdlib.h>
+	"cmmdc.h"
+
+1476632013 source:c:\users\aleen\desktop\temaoop1\main.c
+	<stdio.h>
+	<stdlib.h>
+	"cmmdc.h"
+
+1476632173 c:\users\aleen\desktop\temaoop1\cmmdc.h
+	<stdio.h>
+
+1476632891 source:c:\users\aleen\desktop\temaoop1\cmmdc.c
+	<stdio.h>
+	<stdlib.h>
+	"cmmdc.h"
+
