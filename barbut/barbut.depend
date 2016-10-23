@@ -1,0 +1,12 @@
+# depslib dependency file v1.0
+1477229557 source:e:\university\barbut\main.cpp
+	"zar.h"
+	<iostream>
+
+1477228460 e:\university\barbut\zar.h
+
+1477229455 source:e:\university\barbut\zar.cpp
+	"zar.h"
+	<stdlib.h>
+	<time.h>
+
