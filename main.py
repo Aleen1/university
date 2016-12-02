@@ -1,18 +1,26 @@
-def addEdge(vertList, x, y):
-    if vertList.get(x) == None:
-        vertList[x] = []
-    if vertList.get(y) == None:
-        vertList[y] = []
-    vertList[x].append(y)
-    vertList[y].append(x)
+def add_vertex(list, x, y):
+    if list.get(x) is None:
+        list[x] = []
+    list[x].append(y)
 
-def read(File_Name):
-    File = open(File_Name, 'r')
+    if list.get(y) is None:
+        list[y] = []
+    list[y].append(x)
 
-    global vertList
+
+def add_Node(set, x, y):
+    if x not in set:
+        set.add(x)
+
+    if y not in set:
+        set.add(y)
+
+
+def read(file_Name):
+    File = open(file_Name, 'r')
+
     nodes = set()
-    vertex_List = {}
-    file_content = []
+    vertex_list = {}
 
     for line in File:
         if line[len(line) - 1 == '\n']:
@@ -21,20 +29,78 @@ def read(File_Name):
         x = vertex[0]
         y = vertex[1]
 
-        addEdge(vertex_List, x, y)
-    """for vertex in file_content:
-        x = vertex[0]
-        y = vertex[1]
+        add_Node(nodes, x, y)
+        add_vertex(vertex_list, x, y)
 
-        addEdge(vertList, x, y)
-    n = int(input("Number of nodes: "))
-    m = int(input("Number of edges: "))
-    for i in range(0, m):
-        x = int(input())
-        y = int(input())
-        addEdge(vertList, x, y)"""
+    return sorted(nodes), vertex_list
 
-def printList():
+nodes, vList = read('data.in')
+viz = set()
+comp = []
+
+def print_graph():
+    for node in nodes:
+        print(str(node) + ": " + str(vList[node]))
+
+
+def DFS_conex(node):
+    viz.add(node)
+    nr_nodes = 1
+    for i in vList[node]:
+        if i not in viz:
+            nr_nodes = nr_nodes + DFS_conex(i)
+    return nr_nodes
+
+def check_conex():
+    viz.clear()
+    if DFS_conex(nodes[0]) == len(nodes):
+        print("The graph is conex.\n")
+    else:
+        print("The graph is NOT conex.\n")
+
+def DFS_comp_conex(node):
+    viz.add(node)
+    comp.append(node)
+    for i in vList[node]:
+        if i not in viz:
+            DFS_comp_conex(i)
+
+def print_comp_conex():
+    viz.clear()
+    nr = 0
+    for i in nodes:
+        if i not in viz:
+            DFS_comp_conex(i)
+            nr = nr + 1
+            print("Comp. no. ", nr, ": ", *sorted(comp), sep=' ')
+            del comp[:]
+    print()
+
+
+def DFS_cycle(node, father):
+    viz.add(node)
+    for i in vList[node]:
+        if i not in viz:
+            if DFS_cycle(i, node) == True:
+                return True
+        elif i != father:
+            return True
+    return False
+
+def check_cycle():
+    viz.clear()
+    for i in nodes:
+        if i not in viz:
+            if DFS_cycle(i, 0) == True:
+                print("The graph has at least 1 cycle.\n")
+                return False
+    print("The graph has no cycles.\n")
+
+check_conex()
+print_comp_conex()
+check_cycle()
+
+"""def printList():
     for i in range(1, n+1):
         print(*vertList[i], sep=' ')
         print('\n')
@@ -52,15 +118,6 @@ def DFS_comp(x):
         if viz[i] == False:
             DFS_comp(i)
 
-def DFS_cycle(x, father):
-    viz[x] = True
-    for i in vertList[x]:
-        if viz[i] == False:
-            if DFS_cycle(i, x) == True:
-                return True
-        elif viz[i] == True & i != father:
-            return True
-    return False
 
 def conex():
     global viz
@@ -96,4 +153,4 @@ def check_cycle():
         print("The graphs doesn't have any cycle.\n")
 
 read('data.in')
-check_cycle()
+check_cycle()"""
