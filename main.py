@@ -74,7 +74,6 @@ def print_comp_conex():
             nr = nr + 1
             print("Comp. no. ", nr, ": ", *sorted(comp), sep=' ')
             del comp[:]
-    print()
 
 
 def DFS_cycle(node, father):
@@ -96,6 +95,91 @@ def check_cycle():
                 return False
     print("The graph has no cycles.\n")
 
-check_conex()
-print_comp_conex()
-check_cycle()
+"""
+def roy_floyd():
+    n = 0
+    for i in nodes:
+        n = max(n, int(i)+1)
+
+    dp = [[0 for i in range(n+2)] for y in range(n+2)]
+
+    for i in nodes:
+        for j in vList[i]:
+            dp[int(i)][int(j)] = 1
+
+
+    for k in range(1, n):
+        for i in range(1, n):
+            for j in range(1, n):
+                if i != j:
+                    if dp[i][k] != 0:
+                        if dp[k][j] != 0:
+                            if dp[i][j] > dp[i][k] + dp[k][j]:
+                                dp[i][j] = dp[i][k] + dp[k][j]
+                            elif dp[i][j] == 0:
+                                dp[i][j] = dp[i][k] + dp[k][j]
+    for i in range(1, n):
+        for j in range(1, n):
+            print(dp[i][j], sep=' ', end='')
+        print()
+"""
+
+def shortest_path(x, y):
+    x = str(x)
+    y = str(y)
+    viz.clear()
+    viz.add(x)
+    queue = [x]
+    father = {x: str(0)}
+
+    while len(queue) != 0:
+        node = queue[0]
+        queue.pop(0)
+        for i in vList[node]:
+            if i not in viz:
+                viz.add(i)
+                father[i] = node
+                queue.append(i)
+    path = []
+    if y not in viz:
+        return path
+
+    while y != str(0):
+        path.append(y)
+        y = father[str(y)]
+    path.reverse()
+    return path
+
+
+def menu():
+    print("\nMenu options:")
+    print("Option 1: Print the adjacency list of the graph.")
+    print("Option 2: Check if the graph is conex.")
+    print("Option 3: Print the conex components.")
+    print("Option 4: Check if the graph has at least 1 cycle.")
+    print("Option 5: Get the shortest path from x to y.")
+    print("Option 6: Quit.\n")
+
+    option = int(input("Select your option: "))
+
+    if option == 1:
+        print_graph()
+    elif option == 2:
+        check_conex()
+    elif option == 3:
+        print_comp_conex()
+    elif option == 4:
+        check_cycle()
+    elif option == 5:
+        x = input("Read starting node: ")
+        y = input("Read ending node: ")
+        path = shortest_path(x, y)
+        print('Shortest path from ' + x + " to " + y + " is: ", end='')
+        print(*path, sep=' ', end='\n\n')
+    elif option == 6:
+        return
+    else:
+        print("You have introduced a wrong option.")
+    menu()
+
+menu()
