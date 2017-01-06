@@ -8,7 +8,8 @@ class complex:
         self.imag = other.imag
 
     def print(self):
-        print(self.real, end='', sep='')
+        if self.real != 0:
+            print(self.real, end='', sep='')
         if self.imag > 0:
             print("+", self.imag, "*i", end='', sep='')
         elif self.imag < 0:
