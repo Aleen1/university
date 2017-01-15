@@ -35,6 +35,12 @@ class complex:
         #we return a complex instance with temporal real and imaginary parts calculated previously
         return complex(real, imag)
 
+    def __sub__(self, other):
+        (real, imag) = (0, 0)
+        real = self.real - other.real
+        imag = self.imag - other.imag
+        return complex(real, imag)
+
     #overload for the "*" operator between complex numbers
     def __mul__(self, other):
         # temporal variables
@@ -44,6 +50,7 @@ class complex:
         imag = self.real * other.imag + self.imag * other.real
         # we return a complex instance with temporal real and imaginary parts calculated previously
         return complex(real, imag)
+
 
 #class for polynomials with complex coefficients
 class polynomial:
@@ -74,6 +81,14 @@ class polynomial:
         #we add all the coefficients and store the result for every coefficient in a new list
         coeffs = [coeffs1[i] + coeffs2[i] for i in range(len(coeffs1))]
         #return an instance of a polynomial with the coefficients computed before
+        return polynomial(coeffs)
+
+    def __sub__(self, other):
+        (coeffs1, coeffs2) = (self.coeffs, other.coeffs)
+        if (len(coeffs1) > len(coeffs2)):
+            (coeffs1, coeffs2) = (coeffs2, coeffs1)
+        coeffs1 = [complex(0, 0)] * (len(coeffs2) - len(coeffs1)) + coeffs1
+        coeffs = [coeffs1[i] - coeffs2[i] for i in range(len(coeffs1))]
         return polynomial(coeffs)
 
     #overload for the "*" operator between polynomials
@@ -199,6 +214,15 @@ class matrix:
         #return the matrix
         return tmp
 
+    def __sub__(self, other):
+        tmp = matrix()
+        tmp.vec = [[polynomial([]) for i in range(self.n)] for j in range(self.n)]
+        for i in range(self.n):
+            for j in range(self.n):
+                tmp.vec[i][j] = self.vec[i][j] - other.vec[i][j]
+        tmp.n = self.n
+        return tmp
+
     #overload for "*" operator between matrices
     def __mul__(self, other):
         #temporal matrix where we store the result by multiplying the two matrices
@@ -215,6 +239,21 @@ class matrix:
         #return the matrix
         return tmp
 
+    def det(self):
+        mat = [[polynomial([]) for i in range(self.n)] for j in range(self.n)]
+        for i in range(self.n):
+            for j in range(self.n):
+                mat[i][j] = self.vec[i][j]
+
+        N = self.n - 1
+        for k in range(self.n - 1):
+            for i in range(N):
+                for j in range(N):
+                    mat[i][j] = mat[i][j] * mat[i+1][j+1] - mat[i+1][j] * mat[i][j+1]
+            N = N - 1
+
+        return mat[0][0]
+
 #array where we store all the matrices we've created so we can make operations on them
 matrices = []
 
@@ -228,7 +267,8 @@ def menu():
     print("Option 4: Evaluate a matrix in a given point")
     print("Option 5: Add 2 matrices with the same rank")
     print("Option 6: Multimply 2 matrices with the same rank")
-    print("\nOption 7: Quit.\n")
+    print("Option 7: Compute the determinant of a matrix")
+    print("\nOption 8: Quit.\n")
     #reading the option the user wants
     option = input("Select your option: ")
 
@@ -259,9 +299,9 @@ def menu():
         # check if the selected matrix exists
         if ind > len(matrices):
             print("This matrix doesn't exist. Read more matrices")
-            return
-        #print the matrix
-        matrices[ind - 1].print()
+        else:
+            #print the matrix
+            matrices[ind - 1].print()
 
     #increase a matrix
     elif option == '3':
@@ -272,18 +312,18 @@ def menu():
         #check if the selected matrix exists
         if ind > len(matrices):
             print("This matrix doesn't exist. Read more matrices")
-            return
-        #read the rank of the polynomial used to increase the matrix
-        rank = int(input("Read the rank of the polynomial: "))
-        print("Read the complex coefficients of the polynomial")
-        #read the coefficients of the polynomial
-        for i in range(rank + 1):
-            print("x^", rank - i, end=': ', sep='')
-            real = int(input())
-            imag = int(input())
-            coeffs.append(complex(real, imag))
-        #increase the selected matrix with the polynomial we've read
-        matrices[ind - 1].increase(polynomial(coeffs))
+        else:
+            #read the rank of the polynomial used to increase the matrix
+            rank = int(input("Read the rank of the polynomial: "))
+            print("Read the complex coefficients of the polynomial")
+            #read the coefficients of the polynomial
+            for i in range(rank + 1):
+                print("x^", rank - i, end=': ', sep='')
+                real = int(input())
+                imag = int(input())
+                coeffs.append(complex(real, imag))
+            #increase the selected matrix with the polynomial we've read
+            matrices[ind - 1].increase(polynomial(coeffs))
 
     #evaluate a matrix in a given point
     elif option == '4':
@@ -292,20 +332,20 @@ def menu():
         #check if the selected matrix exists
         if ind > len(matrices):
             print("This matrix doesn't exist. Read more matrices")
-            return
-        #read the point in where the matrix will be evaluated
-        x = int(input("In which point do you want the matrix to be evaluated? "))
-        #result stores the matrix equal to the evaluation of every polynomial of the matrix
-        result = matrices[ind - 1].evaluate(x)
-        #N is the rank of the matrix
-        N = matrices[ind - 1].n
-        #print the resulted matrix of the evaluation in x
-        for i in range(N):
-            for j in range(N):
-                result[i][j].print()
-                print(end="     ")
-            print()
-        print('\n')
+        else:
+            #read the point in where the matrix will be evaluated
+            x = int(input("In which point do you want the matrix to be evaluated? "))
+            #result stores the matrix equal to the evaluation of every polynomial of the matrix
+            result = matrices[ind - 1].evaluate(x)
+            #N is the rank of the matrix
+            N = matrices[ind - 1].n
+            #print the resulted matrix of the evaluation in x
+            for i in range(N):
+                for j in range(N):
+                    result[i][j].print()
+                    print(end="     ")
+                print()
+            print('\n')
 
     #add 2 matrices. Add the 2nd matrix to the first one
     elif option == '5':
@@ -314,22 +354,21 @@ def menu():
         #check if the selected matrix exists
         if ind1 > len(matrices):
             print("This matrix doesn't exist. Read more matrices")
-            return
-        #read the indices of the 2nd matrix that will be added to the first one
-        ind2 = int(input("Which matrix do you want to be added to the first one? "))
-        #check if the selected matrix exists
-        if ind1 > len(matrices):
-            print("This matrix doesn't exist. Read more matrices")
-            return
-        #check if the selected matrices have the same rank
-        #if they doesn't have the same rank, we can't add them
-        if matrices[ind2 - 1].n != matrices[ind1 - 1].n:
-            print("The 2 matrices you selected doesn't have the same rank.")
-            return
-
-        #if we got to this point it means we got 2 valid matrices with the same rank
-        #so we add the 2nd matrix to the frist one
-        matrices[ind1 - 1] = matrices[ind1 - 1] + matrices[ind2 - 1]
+        else:
+            #read the indices of the 2nd matrix that will be added to the first one
+            ind2 = int(input("Which matrix do you want to be added to the first one? "))
+            #check if the selected matrix exists
+            if ind2 > len(matrices):
+                print("This matrix doesn't exist. Read more matrices")
+            else:
+                #check if the selected matrices have the same rank
+                #if they doesn't have the same rank, we can't add them
+                if matrices[ind2 - 1].n != matrices[ind1 - 1].n:
+                    print("The 2 matrices you selected doesn't have the same rank.")
+                else:
+                    #if we got to this point it means we got 2 valid matrices with the same rank
+                    #so we add the 2nd matrix to the frist one
+                    matrices[ind1 - 1] = matrices[ind1 - 1] + matrices[ind2 - 1]
 
     #multiply 2 matrices. Store the result in the first matrix
     elif option == '6':
@@ -338,24 +377,39 @@ def menu():
         #check if the selected matrix exists
         if ind1 > len(matrices):
             print("This matrix doesn't exist. Read more matrices")
-            return
-        #read the indices of the 2nd matrix
-        ind2 = int(input("Which matrix do you want to be multiplied to the first one? "))
-        #check if the selected matrix exists
-        if ind1 > len(matrices):
+        else:
+            #read the indices of the 2nd matrix
+            ind2 = int(input("Which matrix do you want to be multiplied to the first one? "))
+            #check if the selected matrix exists
+            if ind2 > len(matrices):
+                print("This matrix doesn't exist. Read more matrices")
+            else:
+                #check if the selected matrices have the same rank
+                #if they doesn't have the same rank, we can't add them
+                if matrices[ind2 - 1].n != matrices[ind1 - 1].n:
+                    print("The 2 matrices you selected doesn't have the same rank.")
+                else:
+                    #if we got to this point it means we got 2 valid matrices with the same rank
+                    #so we multiply them and store the result in the first matrix
+                    matrices[ind1 - 1] = matrices[ind1 - 1] * matrices[ind2 - 1]
+
+    #compute the determinant of a matrix
+    elif option == '7':
+        #read the indices of the matrix
+        ind = int(input("Determinant of which matrix do you want to be computed? "))
+        #check if the matrix exists
+        if ind > len(matrices):
             print("This matrix doesn't exist. Read more matrices")
-            return
-        #check if the selected matrices have the same rank
-        #if they doesn't have the same rank, we can't add them
-        if matrices[ind2 - 1].n != matrices[ind1 - 1].n:
-            print("The 2 matrices you selected doesn't have the same rank.")
-            return
-        #if we got to this point it means we got 2 valid matrices with the same rank
-        #so we multiply them and store the result in the first matrix
-        matrices[ind1 - 1] = matrices[ind1 - 1] * matrices[ind2 - 1]
+        else:
+            #compute the determinant that is a polynomial
+            poly = matrices[ind - 1].det()
+            #print the determinant
+            poly.print()
+            print('\n')
+
 
     #terminate the program
-    elif option == '7':
+    elif option == '8':
         return
 
     #print that the user selected a wrong option
